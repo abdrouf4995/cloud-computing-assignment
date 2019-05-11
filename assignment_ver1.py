@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 colnames = ['Pass_id', 'f_id', 'from', 'dest', 'dept_time','tot_time']
-flights = pd.read_csv(r"C:\Users\bc822272\Desktop\AComp_Passenger_data_no_error.csv",names=colnames)
-airports = pd.read_csv(r"C:\Users\bc822272\Desktop\Top30_airports_LatLong.csv")
+flights = pd.read_csv(r"C:\Users\Desktop\AComp_Passenger_data_no_error.csv",names=colnames)
+airports = pd.read_csv(r"C:\Users\Desktop\Top30_airports_LatLong.csv")
 
 #part 1
 port1= airports['IATA']
