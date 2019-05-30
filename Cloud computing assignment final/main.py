@@ -7,7 +7,7 @@ import numpy as np
 import time
 import threading
 
-
+outfile = open('results.txt', 'w')
 
 threadCount = 10
 processCount = 10
@@ -49,6 +49,7 @@ def getData(threadID, processID):
 
 # Calculate reduce and sum up of mapreduce algorithm
 def reduceAndSum():
+
     flight_from_airport = {}
     flightID_based_flights = {}
     for threadID in g_flight_from_airport:
@@ -65,17 +66,25 @@ def reduceAndSum():
                 flightID_based_flights[idx].append(g_flightID_based_flights[threadID][idx][i])
 
     # Total number of flights from each airport
-    print("\nTotal number of flights from every airport:\n")
+    print("\n Total number of flights from every airport:\n ")
+    outfile.write("\n Total number of flights from every airport:")
     for idx in flight_from_airport:
         print("\tAirport(" + idx + ") : "
               + str(flight_from_airport[idx]))
+        outfile.write("\n \tAirport(" + idx + ") : "
+              + str(flight_from_airport[idx]))
 
     # Calculate the number of passengers on each flight
-    print("\nTotal list of flights based on flightID:\n")
+    print("\n Total list of flights based on flightID:\n ")
+    outfile.write("\n Total list of flights based on flightID:")
     for flightID in flightID_based_flights:
-        print("\n\n\tFlight ID: " + flightID)
+        print("\n \n \tFlight ID: " + flightID)
+        outfile.write("\n \n \tFlight ID: " + flightID)
         print("\tNumber of passengers: " + str(len(flightID_based_flights[flightID])))
+        outfile.write("\n \tNumber of passengers: " + str(len(flightID_based_flights[flightID])))
         print("\tFrom airport(" + flightID_based_flights[flightID][0][1] + ") to airport("
+              + flightID_based_flights[flightID][0][2] + ")")
+        outfile.write("\n \tFrom airport(" + flightID_based_flights[flightID][0][1] + ") to airport("
               + flightID_based_flights[flightID][0][2] + ")")
         startAirport = flightID_based_flights[flightID][0][1]
         arriveAirport = flightID_based_flights[flightID][0][2]
@@ -85,8 +94,9 @@ def reduceAndSum():
         arriveLon = float(airport_data[arriveAirport][0][1])
         dist = getDistanceFromLatLonInKm(startLat, startLon, arriveLat, arriveLon)
         print("\tFlight distance: " + str(dist) + " miles")
-    # outfile = open('file.txt', 'wb')
-    # outfile.write(flightID_based_flights)
+        outfile.write("\n \tFlight distance: " + str(dist) + " miles")
+
+
 
 # Process data for every thread
 def process(threadID):
@@ -96,17 +106,11 @@ def process(threadID):
     while (True):
         flightdata = getData(threadID, processID);
 
-        # print("\nThread " + str(threadID) + ":")
-        # Flights from each airport
         for row in flightdata:
             if not row[2] in flight_from_airport:
                 flight_from_airport[row[2]] = 1
             else:
                 flight_from_airport[row[2]] += 1
-        # flight_from_airport = reducer.combine(airport_code)
-        # for flight in flight_from_airport:
-        #     print("\tNumber of flights from airport(" + flight + ") : "
-        #           + str(flight_from_airport[flight]))
 
         # Flights based on the flight ID
 
@@ -131,16 +135,25 @@ def process(threadID):
     if(len(g_flight_from_airport) == threadCount and len(g_flightID_based_flights) == threadCount):
         for idx in g_flight_from_airport:
             print("\nThread " + str(idx) + ":")
-            print("\n\tThe number of flights from every airport:\n")
+            outfile.write("\nThread " + str(idx) + ":")
+            print("\n \tThe number of flights from every airport:\n")
+            outfile.write("\n \tThe number of flights from every airport:\n ")
             for flight in g_flight_from_airport[idx]:
                 print("\t\tAirport(" + flight + ") : "
                       + str(g_flight_from_airport[idx][flight]))
+                outfile.write("\n \t\tAirport(" + flight + ") : "
+                      + str(g_flight_from_airport[idx][flight]))
 
-            print("\n\tList of flights based on flightID:\n")
+            print("\n \tList of flights based on flightID:\n ")
+            outfile.write("\n \tList of flights based on flightID:\n ")
             for flightID in g_flightID_based_flights[idx]:
                 print("\t\tFlight ID: " + flightID)
+                outfile.write("\n \t\tFlight ID: " + flightID)
                 print("\t\tNumber of passengers: " + str(len(g_flightID_based_flights[idx][flightID])))
-                print("\t\tFrom airport(" + g_flightID_based_flights[idx][flightID][0][1] + ") to airport("
+                outfile.write("\n \t\tNumber of passengers: " + str(len(g_flightID_based_flights[idx][flightID])))
+                print("\n \t\tFrom airport(" + g_flightID_based_flights[idx][flightID][0][1] + ") to airport("
+                      + g_flightID_based_flights[idx][flightID][0][2] + ")")
+                outfile.write("\t\tFrom airport(" + g_flightID_based_flights[idx][flightID][0][1] + ") to airport("
                       + g_flightID_based_flights[idx][flightID][0][2] + ")")
                 startAirport = g_flightID_based_flights[idx][flightID][0][1]
                 arriveAirport = g_flightID_based_flights[idx][flightID][0][2]
@@ -149,7 +162,8 @@ def process(threadID):
                 arriveLat = float(airport_data[arriveAirport][0][0])
                 arriveLon = float(airport_data[arriveAirport][0][1])
                 dist = getDistanceFromLatLonInKm(startLat, startLon, arriveLat, arriveLon)
-                print("\t\tFlight distance: " + str(dist) + " Km\n")
+                print("\t\tFlight distance: " + str(dist) + " Km\n ")
+                outfile.write("\n \t\tFlight distance: " + str(dist) + " Km\n ")
         reduceAndSum()
 
 def main():
@@ -164,11 +178,10 @@ def main():
         thread.start()
         thread_arr.append(thread)
 
-    # outfile = open('file.txt', 'wb')
-    # outfile.write(str(word_reduced))
-    #
-    # print ("File written successfully in file.txt")
-    # sys.exit(1)
+
+
+    print ("File written successfully in results.txt")
+    # //sys.exit(1)
 
 
 if __name__ == '__main__':
